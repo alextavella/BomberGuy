@@ -10,12 +10,21 @@ public class PlayerScript : MonoBehaviour {
 	public float maxLeft, maxRight;
 
 	public Transform chaoVerificador;
+	//	public Transform ignored;
+	public Transform normalBomb;
+	public Transform explosionBomb;
 
 	private SpriteRenderer spriteRenderer;
 	private Rigidbody2D rb;
 	private Animator animator;
 
-	private bool isColliderPiso;
+	private GameObject bombCollision;
+	private bool isColliderPiso = false;
+	private bool isColliderBomb = false;
+
+	private SpriteRenderer normalBombSpriteRenderer;
+	private BombItemScript normalBombScript;
+	private BombItemScript explosionBombScript;
 
 	// Use this for initialization
 	void Start () {
@@ -24,6 +33,13 @@ public class PlayerScript : MonoBehaviour {
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		rb = GetComponent<Rigidbody2D> ();
 		animator = GetComponent<Animator> ();
+
+		normalBombSpriteRenderer = normalBomb.GetComponent<SpriteRenderer>();
+
+		normalBombScript = normalBomb.GetComponent<BombItemScript> ();
+		normalBombScript.Hide ();
+
+//		Physics.IgnoreCollision(ignored.GetComponent<Collider>(), GetComponent<Collider>());
 	}
 	
 	// Update is called once per frame
@@ -50,9 +66,11 @@ public class PlayerScript : MonoBehaviour {
 		);
 
 		// Orientation view
-		if (move_x > 0) { 
+		if (move_x > 0) {
+			normalBombSpriteRenderer.flipX = false;
 			spriteRenderer.flipX = false;
 		} else if (move_x < 0) {
+			normalBombSpriteRenderer.flipX = true;
 			spriteRenderer.flipX = true;
 		}
 
@@ -70,13 +88,32 @@ public class PlayerScript : MonoBehaviour {
 //		if (life <= 0) {
 //			Destroy (gameObject);
 //		}
+
+		// Dead
+		if (transform.position.y <= -6) {
+			Destroy (gameObject);
+			Application.LoadLevel (SceneUtils.FINISH);
+		}
+
+		// Hold bomb
+		if (Input.GetButtonDown (ButtonUtils.HOLD) && isColliderBomb) {
+			Destroy (bombCollision);
+			normalBombScript.Show ();
+		}
 	}
 
 //	void OnTriggerEnter2D(Collider2D c){
 //		// Destroy sub enemy
-//		if (c.tag == "SubInimigo") {
-//			Destroy (c.gameObject);
-//			life--;
+//		print(c.tag);
+//		if (c.tag == ObjectUtils.BOMB) {
+//			c.isTrigger = true;
 //		}
 //	}
+
+	void OnCollisionEnter2D (Collision2D c) {
+		if (c.gameObject.tag == ObjectUtils.BOMB) {
+			bombCollision = c.gameObject;
+			isColliderBomb = true;
+		}
+	}
 }

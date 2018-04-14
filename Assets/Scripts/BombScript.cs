@@ -70,10 +70,10 @@ public class BombScript : MonoBehaviour {
 	{
 		NextStepBomb ();
 
-		yield return new WaitForSeconds(0.1f);
+		yield return new WaitForSeconds(GameUtils.BOMB_ON_TIMER);
 		DestroyObject(block);
 
-		yield return new WaitForSeconds(0.1f);
+		yield return new WaitForSeconds(GameUtils.BOMB_EXPLOSION_TIMER);
 		DestroyObject(gameObject);
 	}
 
